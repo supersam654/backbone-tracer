@@ -1,4 +1,6 @@
-class Writer(Object):
+import struct
+
+class Writer(object):
     def write(self, normalized_traceroute_output):
         raise NotImplementedError("Use a concrete writer!")
 
@@ -12,7 +14,7 @@ def to_bin(trace):
     return struct.pack('<B' + format_str, format_length, destination_ip, *oneDimension)
 
 class FileWriter(Writer):
-    def __init__(filename):
+    def __init__(self, filename):
         self.filename = filename
 
     def write(self, normalized_traceroute_output):

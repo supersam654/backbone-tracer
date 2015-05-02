@@ -7,7 +7,7 @@ Fun fact: I decided not to reimplement traceroute functionality.
 """
 
 from random import randint
-from parsers import traceroute
+from traceroute import traceroute
 from writers import *
 import struct
 

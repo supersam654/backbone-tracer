@@ -42,8 +42,8 @@ def linux_parser(output):
     return data
 
 def linux_traceroute(ip):
-    CMD = ["sudo", "traceroute", "-n", "-I", "-w", "1", "-q", "1", "-m", "20"] + [str(ip)]
-    output = chceck_output(CMD)
+    cmd = ["sudo", "traceroute", "-n", "-I", "-w", "1", "-q", "1", "-m", "20"] + [str(ip)]
+    output = check_output(cmd)
     parsed_output = linux_parser(output)
     if not parsed_output:
         return None
