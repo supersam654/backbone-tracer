@@ -10,6 +10,7 @@ from random import randint
 from traceroute import traceroute
 from writers import *
 import struct
+import logging
 
 def calc_format_string(size):
     return "<L" + "Li" * ((size - 4) / 8)
@@ -25,12 +26,19 @@ def read_data():
             print data
 
 def generate_data(traceroute, writer):
+    logger = logging.getLogger('backbone-tracer')
+    logger.info('Backbone Tracer is tracing IPs..')
     while True:
         ip = randint(0, 2**32 - 1)
-        print "Tracerouting: %d" % ip
-        output = traceroute(ip)
-        writer.write(output)
+        logger.info("Tracerouting: %d" % ip)
+        try:
+            output = traceroute(ip)
+            if not writer.write(output):
+                logger.info("Failed to write %d" % output)
+        except ValueError, e:
+            logger.warning(e)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     generate_data(traceroute, FileWriter("output.bin"))
     read_data()

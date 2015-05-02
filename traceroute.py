@@ -34,8 +34,7 @@ def linux_parser(output):
                 ip = 0
                 time = 0
             except ValueError, e:
-                print e
-                print("Could not interpret this output: %r of %r" % (line, output))
+                raise ValueError("Could not interpret this output: %r of %r" % (line, output))
                 return None
         # ip is an integer and time is an integer number of microseconds (um = ms * 1000)
         data.append([ip, time])
