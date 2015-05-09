@@ -7,20 +7,17 @@ Script used in the internet mapping project.
 Fun fact: I decided not to reimplement traceroute functionality.
 """
 
-from traceroute import traceroute, Trace
+from traceroute import traceroute
 from writers import *
 import logging
 import ipgetter
-from netaddr import IPNetwork
-from sys import argv
-import csv
-from threading import Thread, Lock
+import gzip
+from threading import Thread
+
+IN_FILENAME = 'data/geolite.txt.gz'
+OUT_FILENAME = 'data/data.json.gz'
 
 logger = logging.getLogger('backbone-tracer')
-
-def get_ip_from_range(ip_range):
-    ip = IPNetwork(ip_range).ip
-    return ip + 1
 
 def skip_beginning(itr, offset):
     for i in range(offset):
@@ -28,11 +25,11 @@ def skip_beginning(itr, offset):
     return itr
 
 def compute_trace(source, row):
-    destination = get_ip_from_range(row['network'])
+    destination, latitude, longitude = row.split(' ')
     logging.info("Tracerouting: %s" % destination)
     output = traceroute(source, str(destination))
-    output.latitude = row['latitude']
-    output.longitude = row['longitude']
+    output.latitude = latitude
+    output.longitude = longitude
     return output
 
 def write_trace(order, output):
@@ -44,12 +41,11 @@ def tracer(source, itr):
         trace = compute_trace(source, row)
         write_trace(i, trace)
 
-def generate_data(traceroute, input_filename, writer):
+def generate_data(traceroute, writer):
     logger.info('Backbone Tracer is tracing IPs..')
     source = ipgetter.myip()
     logger.info('My IP address is: %s' % source)
-    with open(input_filename) as csvfile:
-        reader = csv.DictReader(csvfile)
+    with gzip.open(IN_FILENAME) as reader:
         offset = writer.count()
         itr = enumerate(skip_beginning(reader, offset))
         logger.info("Skipping past the first %d addresses." % offset)
@@ -63,8 +59,5 @@ def generate_data(traceroute, input_filename, writer):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    filename = argv[1]
-    writer = JsonWriter("data.json")
-    generate_data(traceroute, filename, writer)
-    
-            
+    writer = JsonWriter(OUT_FILENAME)
+    generate_data(traceroute, writer)

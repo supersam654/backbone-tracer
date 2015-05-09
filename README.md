@@ -21,4 +21,4 @@ To traceroute the internet, run:
 
     python traceroute.py <filename>
 
-Currently, it can only traceroutes the first IP address in every block.
+By default, filename should be `data/geolite.txt.gz`
