@@ -1,5 +1,4 @@
 import json
-import gzip
 from threading import Lock
 
 class JsonWriter(object):
@@ -14,7 +13,7 @@ class JsonWriter(object):
 
     def _write_queue(self):
         with self.lock:
-            with gzip.open(self.filename, "a") as f:
+            with open(self.filename, "a") as f:
                 while self.waiting.has_key(self.next_to_write):
                     trace = self.waiting[self.next_to_write]
                     s = json.dumps(trace)
@@ -25,13 +24,13 @@ class JsonWriter(object):
     def write(self, order, trace):
         if not trace:
             return False
-        self._queue(order, trace)
+        self._queue(order, trace.__dict__)
         self._write_queue()
         return True
 
     def count(self):
         try:
-            with gzip.open(self.filename) as f:
+            with open(self.filename) as f:
                 return sum (1 for line in f)
         except IOError:
             return 0

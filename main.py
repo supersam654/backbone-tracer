@@ -15,7 +15,7 @@ import gzip
 from threading import Thread
 
 IN_FILENAME = 'data/geolite.txt.gz'
-OUT_FILENAME = 'data/data.json.gz'
+OUT_FILENAME = 'data/data.json'
 
 logger = logging.getLogger('backbone-tracer')
 
@@ -33,14 +33,10 @@ def compute_trace(source, row):
         output.longitude = longitude
     return output
 
-def write_trace(order, output):
-    if not writer.write(order, output.__dict__):
-        logger.warning("Failed to write %s" % output.__dict__)
-
 def tracer(source, itr):
     for i, row in itr:
         trace = compute_trace(source, row)
-        write_trace(i, trace)
+        writer.write(i, output)
 
 def generate_data(traceroute, writer):
     logger.info('Backbone Tracer is tracing IPs..')
