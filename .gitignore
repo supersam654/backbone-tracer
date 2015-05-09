@@ -55,3 +55,7 @@ coverage.xml
 docs/_build/
 
 # PyBuilder
+
+# Input and Output Data
+data.json
+GeoLite*

@@ -15,9 +15,12 @@ class Trace(object):
         self.hops = []
         self.latitude = 9000.1
         self.longitude = 9000.1
+        self.count = 0
 
     def add_hop(self, ip, microseconds):
-        self.hops.append([len(self.hops), ip, microseconds])
+        if ip != '0.0.0.0':
+            self.hops.append([self.count, ip, microseconds])
+        self.count += 1
 
 def linux_parser(output, source, destination):
     if "!" in output:
@@ -33,7 +36,7 @@ def linux_parser(output, source, destination):
         except ValueError:
             try:
                 hop, star = line.split()
-                ip = 0
+                ip = '0.0.0.0'
                 time = 0
             except ValueError, e:
                 raise ValueError("Could not interpret this output: %r of %r" % (line, output))

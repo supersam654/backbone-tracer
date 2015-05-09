@@ -15,6 +15,10 @@ from netaddr import IPNetwork
 from sys import argv
 import csv
 
+def get_ip_from_range(ip_range):
+    ip = IPNetwork(ip_range).ip
+    return ip + 1
+
 def generate_data(traceroute, input_filename, writer):
     logger = logging.getLogger('backbone-tracer')
     logger.info('Backbone Tracer is tracing IPs..')
@@ -22,15 +26,20 @@ def generate_data(traceroute, input_filename, writer):
     logger.info('My IP address is: %s' % source)
     with open(input_filename) as csvfile:
         reader = csv.DictReader(csvfile)
+        offset = writer.count()
+        logger.info("Skipping past the first %d addresses." % offset)
         for row in reader:
-            destination = IPNetwork(row['network']).ip + 1
+            if offset > 0:
+                offset -= 1
+                continue
+            destination = get_ip_from_range(row['network'])
             logger.info("Tracerouting: %s" % destination)
+            output = traceroute(source, str(destination))
+            output.latitude = row['latitude']
+            output.longitude = row['longitude']
             try:
-                output = traceroute(source, str(destination))
-                output.latitude = row['latitude']
-                output.longitude = row['longitude']
                 if not writer.write(output.__dict__):
-                    logger.info("Failed to write %s" % output.__dict__)
+                    logger.warning("Failed to write %s" % output.__dict__)
             except ValueError, e:
                 logger.warning(e)
 
