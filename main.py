@@ -28,8 +28,9 @@ def compute_trace(source, row):
     destination, latitude, longitude = row.split(' ')
     logging.info("Tracerouting: %s" % destination)
     output = traceroute(source, str(destination))
-    output.latitude = latitude
-    output.longitude = longitude
+    if output:
+        output.latitude = latitude
+        output.longitude = longitude
     return output
 
 def write_trace(order, output):
