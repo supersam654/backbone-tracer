@@ -8,25 +8,27 @@ Currently only tested on linux but stubbed out support for Windows and OSX.
 from subprocess import check_output
 from sys import platform
 
-def dotted_quad_to_int(ip):
-    parts = ip.split('.')
-    i1 = int(parts[0]) << 24
-    i2 = int(parts[1]) << 16
-    i3 = int(parts[2]) << 8
-    i4 = int(parts[3]) << 0
-    return i1 + i2 + i3 + i4
+class Trace(object):
+    def __init__(self, source, destination):
+        self.source = source
+        self.destination = destination
+        self.hops = []
+        self.latitude = 9000.1
+        self.longitude = 9000.1
 
-def linux_parser(output):
+    def add_hop(self, ip, microseconds):
+        self.hops.append([len(self.hops), ip, microseconds])
+
+def linux_parser(output, source, destination):
     if "!" in output:
         return None
-    data = []
+    data = Trace(source, destination)
     for line in output.split('\n')[1:]:
         line = line.strip().replace('  ', ' ')
         if line == '':
             continue
         try:
             hop, ip, time, unit = line.split()
-            ip = dotted_quad_to_int(ip)
             time = int(float(time) * 1000)
         except ValueError:
             try:
@@ -36,18 +38,21 @@ def linux_parser(output):
             except ValueError, e:
                 raise ValueError("Could not interpret this output: %r of %r" % (line, output))
                 return None
-        # ip is an integer and time is an integer number of microseconds (um = ms * 1000)
-        data.append([ip, time])
+        # ip is a string and time is an integer number of microseconds (um = ms * 1000)
+        data.add_hop(ip, time)
     return data
 
-def linux_traceroute(ip):
-    cmd = ["sudo", "traceroute", "-n", "-I", "-w", "1", "-q", "1", "-m", "20"] + [str(ip)]
+def linux_traceroute(source, destination):
+    cmd = ["sudo", "traceroute", "-n", "-I", "-w", "1", "-q", "1", "-m", "20"] + [destination]
     output = check_output(cmd)
-    parsed_output = linux_parser(output)
-    if not parsed_output:
+    trace = linux_parser(output, source, destination)
+    if not trace:
         return None
     else:
-        return (ip, parsed_output)
+        return trace
+
+def osx_traceroute(source, destination):
+    return linux_traceroute(source, destination)
 
 if platform.startswith("linux"):
     traceroute = linux_traceroute
@@ -55,7 +60,6 @@ elif platform.startswith("win"):
     raise NotImplementedError("Windows is not supported (yet).")
     # traceroute = windows_traceroute
 elif platform.startswith("darwin"):
-    raise NotImplementedError("OSX is not supported (yet).")
-    # traceroute = osx_traceroute
+    traceroute = osx_traceroute
 else:
     raise NotImplementedError("Sorry, we haven't implemented this for your OS yet: " + platform)
