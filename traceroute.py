@@ -58,11 +58,15 @@ def osx_traceroute(source, destination):
     return linux_traceroute(source, destination)
 
 if platform.startswith("linux"):
+    # Force sudo prompt so the traceroutes work.
+    check_output(["sudo", "echo"])
     traceroute = linux_traceroute
 elif platform.startswith("win"):
     raise NotImplementedError("Windows is not supported (yet).")
     # traceroute = windows_traceroute
 elif platform.startswith("darwin"):
+    # Force sudo prompt so the traceroutes work.
+    check_output(["sudo", "echo"])
     traceroute = osx_traceroute
 else:
     raise NotImplementedError("Sorry, we haven't implemented this for your OS yet: " + platform)
