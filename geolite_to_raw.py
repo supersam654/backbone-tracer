@@ -19,7 +19,7 @@ from netaddr import IPNetwork
 # Note that the input file is not included with the project. It can be downloded from:
 # http://dev.maxmind.com/geoip/geoip2/geolite2/
 IN_FILENAME = "data/GeoLite2-City-Blocks-IPv4.csv"
-OUT_GEO_FILENAME = "data/geolite.txt.gz"
+OUT_GEO_FILENAME = "data/geo.txt.gz"
 OUT_IP_FILENAME = "data/ips.txt.gz"
 
 def get_ip_from_range(ip_range):
