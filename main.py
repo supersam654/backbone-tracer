@@ -14,7 +14,7 @@ import ipgetter
 import gzip
 from threading import Thread
 
-IN_FILENAME = 'data/geolite.txt.gz'
+IN_FILENAME = 'data/ips.txt.gz'
 OUT_FILENAME = 'data/data.json'
 
 logger = logging.getLogger('backbone-tracer')
@@ -24,18 +24,14 @@ def skip_beginning(itr, offset):
         itr.next()
     return itr
 
-def compute_trace(source, row):
-    destination, latitude, longitude = row.split(' ')
+def compute_trace(source, destination):
     logging.info("Tracerouting: %s" % destination)
     output = traceroute(source, str(destination))
-    if output:
-        output.latitude = latitude
-        output.longitude = longitude
     return output
 
 def tracer(source, itr):
-    for i, row in itr:
-        trace = compute_trace(source, row)
+    for i, ip in itr:
+        trace = compute_trace(source, ip)
         writer.write(i, output)
 
 def generate_data(traceroute, writer):
