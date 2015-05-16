@@ -1,0 +1,7 @@
+numpy==1.9.1
+pylzma==0.4.6
+netaddr==0.7.14
+networkx==1.9.1
+matplotlib==1.4.3
+mpld3==0.2
+basemap==1.0.7
