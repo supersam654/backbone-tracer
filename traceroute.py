@@ -7,19 +7,18 @@ Currently only tested on linux but stubbed out support for Windows and OSX.
 
 from subprocess import check_output
 from sys import platform
+from netaddr import IPAddress
 
 class Trace(object):
     def __init__(self, source, destination):
         self.source = source
         self.destination = destination
         self.hops = []
-        self.latitude = 9000.1
-        self.longitude = 9000.1
         self.count = 0
 
     def add_hop(self, ip, microseconds):
         if ip != '0.0.0.0':
-            self.hops.append([self.count, ip, microseconds])
+            self.hops.append([self.count, int(IPAddress(ip)), microseconds])
         self.count += 1
 
 def linux_parser(output, source, destination):

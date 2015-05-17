@@ -1,5 +1,5 @@
 import gzip
-from netaddr import IPNetwork
+from netaddr import IPNetwork, IPAddress
 import sys
 
 _geo_data = {}
@@ -22,7 +22,7 @@ with gzip.open('data/geo.txt.gz') as f:
 
 def get_geo(ip):
     # Find the most specific network that matches this IP address.
-    net = IPNetwork(ip)
+    net = IPNetwork(IPAddress(ip))
     while net not in _geo_data:
         net.prefixlen -= 1
     return _geo_data[net]
